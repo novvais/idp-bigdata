@@ -13,14 +13,13 @@ Ao longo do curso, exploraremos conceitos, infraestrutura e aplicações de Big 
 | 03 | [Jupyter & MongoDB](./jupyter/)                                                      | Integração de Ambientes e Manipulação de Dados com MongoDB       | 03/04/2026 |
 | 04 | [MongoDB & Python](https://www.kaggle.com/code/ganu1899/mongodb-with-python)         | Prática com MongoDB e Python no Kaggle                           | 03/04/2026 |
 | 05 | [Censo IES](./jupyter/#4-limpeza-preparação-e-importação-de-dados-reais)             | Ingestão e Análise de Dados do Censo IES                         | 03/04/2026 |
-| 06 | [Neo4j](./neo4j/)                                                                    | Prática com Banco de Dados de Grafo                        | 08/05/2026 |
+| 06 | [Neo4j](./neo4j/)                                                                    | Prática com Banco de Dados de Grafo                              | 08/05/2026 |
 | 07 | [Cassandra](./cassandra/)                                                            | Prática com Banco de Dados Colunar Cassandra                     | 15/05/2026 |
+| 08 | [MinIO](./minio/)                                                                    | Prática com Armazenamento de Objetos                             | 29/05/2025 |
+| 09 | [Spark](./spark/)                                                                    | Framework Spark e Prática com PySpark                            | 05/06/2025 |
+| 10 | [Delta Lake](./delta/)                                                               | Prática com Delta Lake                                           | 05/06/2025 |
 
 <!--
-| 05 | [Cassandra](./cassandra/)                                                            | Prática com Banco de Dados Colunar Cassandra                     | 26/09/2025 |
-| 06 | [MinIO](./minio/)                                                                    | Prática com Armazenamento de Objetos                             | 03/10/2025 |
-| 07 | [Spark](./spark/)                                                                    | Framework Spark e Prática com PySpark                            | 10/10/2025 |
-| 08 | [Delta Lake](./delta/)                                                               | Prática com Delta Lake                                           | 17/10/2025 |
 | 09 | [Airflow](./airflow/)                                                                | Orquestração de Workflows e Automação de Pipelines               | 31/10/2025 |
 | 10 | [Redis](./redis/)                                                                    | Prática com Banco de Dados Chave-Valor e Mensageria Leve         | 03/11/2025 |
 | 11 | [Kafka](./kafka/)                                                                    | Prática com Event Broker Distribuído                             | 07/11/2025 |
