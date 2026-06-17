@@ -1,4 +1,369 @@
-# Simulação de Pipeline: Ingestão e Processamento de Dados
+# Simulação de Pipeline: Ingestão e Processamento de Dados com Airflow, Kafka, Spark e MinIO
+
+## 1. Objetivo
+
+Você deverá executar um pipeline simples de engenharia de dados usando os ambientes Docker já fornecidos nas pastas do repositório.
+
+O pipeline deve usar:
+
+- **Kafka** para receber os dados do dataset;
+- **Airflow** para organizar a execução das etapas;
+- **Spark / PySpark** para processar os dados;
+- **MinIO** para armazenar o resultado;
+- **Parquet** como formato final dos dados processados.
+
+O fluxo esperado é que o Airflow orquestre o fluxo:
+
+```text
+MinIO (CSV) -> Kafka -> Spark -> MinIO (Parquet)
+```
+
+---
+
+## 2. Arquiteturas
+
+Cada ferramenta já possui sua própria pasta e seu próprio `docker-compose.yml`.
+
+Você deve subir cada ambiente separadamente, mantendo todos os containers na mesma rede Docker.
+
+A rede usada será:
+
+```text
+mybridge
+```
+
+---
+
+## 3. Criar a rede Docker
+
+Antes de subir os containers, execute:
+
+```bash
+docker network create mybridge || true
+```
+
+Esse comando cria a rede `mybridge`.
+
+Caso ela já exista, o erro pode ser ignorado.
+
+---
+
+## 4. Subir o MinIO
+
+Entre na pasta do MinIO:
+
+```bash
+cd minio
+```
+
+Suba o ambiente:
+
+```bash
+docker compose up -d
+```
+
+Acesse o console do MinIO:
+
+```text
+http://localhost:9001
+```
+
+Credenciais:
+
+```text
+Usuário: minioadmin
+Senha: minioadmin
+```
+
+Crie um bucket chamado:
+
+```text
+air-quality
+```
+
+---
+
+## 5. Subir o Kafka
+
+Volte para a raiz do repositório e entre na pasta do Kafka:
+
+```bash
+cd ../kafka
+```
+
+Suba o ambiente:
+
+```bash
+docker compose up -d
+```
+
+Acesse o Kafka UI:
+
+```text
+http://localhost:8083
+```
+
+Crie o tópico:
+
+```text
+sensor_raw
+```
+
+Configuração mínima:
+
+```text
+Partitions: 1
+Replication Factor: 1
+```
+
+---
+
+## 6. Subir o Spark
+
+Volte para a raiz do repositório e entre na pasta do Spark:
+
+```bash
+cd ../spark
+```
+
+Suba o ambiente:
+
+```bash
+docker compose up -d --build
+```
+
+Acesse o Jupyter do container Spark, se necessário:
+
+```text
+http://localhost:8889
+```
+
+O Spark será usado para ler dados do Kafka, processar os registros e gravar o resultado no MinIO.
+
+---
+
+## 7. Subir o Airflow
+
+Volte para a raiz do repositório e entre na pasta do Airflow:
+
+```bash
+cd ../airflow
+```
+
+Execute o script de configuração:
+
+```bash
+chmod +x *.sh
+./pre-setup.sh
+./post-setup.sh
+```
+
+Depois acesse o Airflow:
+
+```text
+http://localhost:8080
+```
+
+Credenciais:
+
+```text
+Usuário: admin
+Senha: admin
+```
+
+---
+
+## 8. Conferir a comunicação entre os containers
+
+Todos os serviços devem estar na rede `mybridge`.
+
+Verifique com:
+
+```bash
+docker network inspect mybridge
+```
+
+Os containers de Kafka, Spark, MinIO e Airflow devem aparecer nessa rede.
+
+Dentro dos containers, os serviços devem ser acessados pelos nomes:
+
+```text
+Kafka: kafka1:9092
+Kafka alternativo: kafka1:9092,kafka2:9093
+MinIO: http://minio:9000
+Bucket: air-quality
+Tópico Kafka: sensor_raw
+```
+
+---
+
+## 9. Criar o Producer Kafka
+
+Crie um script Python para ler o dataset `airquality.csv` e enviar os registros para o tópico Kafka `sensor_raw`.
+
+O Producer deve:
+
+1. ler o arquivo CSV;
+2. transformar cada linha em JSON;
+3. enviar cada mensagem para o tópico Kafka.
+
+Exemplo de mensagem esperada:
+
+```json
+{
+  "Date": "10/03/2004",
+  "Time": "18.00.00",
+  "CO": "2.6",
+  "NO2": "113.0",
+  "Temperature": "13.6",
+  "Relative_Humidity": "48.9",
+  "Absolute_Humidity": "0.7578"
+}
+```
+
+O Producer deve usar o endereço:
+
+```text
+kafka1:9092
+```
+
+---
+
+## 10. Criar o processamento Spark
+
+Crie um job PySpark para ler os dados do Kafka.
+
+O job Spark deve:
+
+1. conectar no Kafka;
+2. ler as mensagens do tópico `sensor_raw`;
+3. interpretar o conteúdo JSON;
+4. converter os campos numéricos;
+5. criar uma coluna de data/hora a partir de `Date` e `Time`;
+6. gravar o resultado no MinIO em formato Parquet.
+
+O caminho de saída deve ser:
+
+```text
+s3a://air-quality/processed/airquality/
+```
+
+O Spark deve usar o MinIO em:
+
+```text
+http://minio:9000
+```
+
+Credenciais:
+
+```text
+Access Key: minioadmin
+Secret Key: minioadmin
+```
+
+---
+
+## 11. Criar a DAG no Airflow
+
+Crie uma DAG no Airflow para organizar a execução do pipeline.
+
+A DAG deve ter, no mínimo, as seguintes tarefas:
+
+```text
+create_kafka_topic
+        |
+        v
+run_producer
+        |
+        v
+run_spark_job
+        |
+        v
+validate_output
+```
+
+A DAG deve executar manualmente pela interface do Airflow.
+A DAG não precisa rodar automaticamente por agendamento.
+---
+
+## 12. Validação no MinIO
+
+Depois da execução, acesse:
+
+```text
+http://localhost:9001
+```
+
+Entre no bucket:
+
+```text
+air-quality
+```
+
+Verifique se existe a pasta:
+
+```text
+processed/airquality/
+```
+
+Dentro dela devem existir arquivos em formato Parquet.
+
+---
+
+## 13. Resultado esperado
+
+Ao final, o pipeline deve demonstrar o seguinte fluxo:
+
+```text
+AirQuality CSV
+      |
+      v
+Kafka topic: sensor_raw
+      |
+      v
+Spark / PySpark
+      |
+      v
+MinIO bucket: air-quality
+      |
+      v
+Parquet em processed/airquality/
+```
+
+---
+
+## 14. O que deve ser entregue
+
+Entregue um arquivo `.zip` contendo:
+
+1. o código do Producer Kafka;
+2. o código do job PySpark;
+3. o código da DAG do Airflow;
+4. prints ou logs demonstrando:
+   - containers em execução;
+   - tópico `sensor_raw` criado;
+   - DAG executada no Airflow;
+   - arquivos Parquet gravados no MinIO.
+
+---
+
+## 15. Leitura em Batch
+
+Nesta atividade, o Spark deve fazer leitura em lote dos dados disponíveis no Kafka.
+
+Use:
+
+```python
+spark.read.format("kafka")
+```
+
+---
+
+
+
+<!--
+
+
 
 ## 1. Visão Geral 
 
@@ -418,13 +783,13 @@ with DAG(
 
     t1 >> t2 >> [t3, t4]
 ```
+Para solucionar o desafio proposto, optamos por um cenário típico de pipelines de streaming, mas implementado e executado na forma de simulação em modo batch, uma vez que operamos sobre um dataset finito.
+
+Nesta simulação, a utilização de uma API Flask como camada de integração se mostra uma alternativa elegante, funcional e estratégica, pois permite a exposição dos dados processados no pipeline para consumo externo, facilitando a comunicação com dashboards, aplicações e outros sistemas, independentemente da ferramenta de orquestração utilizada.
+-->
 
 ## Considerações Finais 
 
-Para solucionar o desafio proposto, optamos por um cenário típico de pipelines de streaming, implementado e executado na forma de simulação em modo batch, uma vez que operamos sobre um dataset finito.
+O pipeline implementado no Airflow representa uma execução controlada, organizada, auditável e aderente às melhores práticas de engenharia de dados, preservando os princípios de modularidade, escalabilidade e observabilidade.
 
-Nesta simulação, a utilização de uma API Flask como camada de integração se mostra uma alternativa elegante, funcional e estratégica, pois permite a exposição dos dados processados no pipeline para consumo externo, facilitando a comunicação com dashboards, aplicações e outros sistemas, independentemente da ferramenta de orquestração utilizada.
-
-Por sua vez, o pipeline implementado no Airflow representa uma execução controlada, organizada, auditável e aderente às melhores práticas de engenharia de dados, preservando os princípios de modularidade, escalabilidade e observabilidade.
-
-Os fundamentos aqui praticados — ingestão, processamento, armazenamento, geração de alertas, cache e integração — estão estruturados dentro de uma arquitetura robusta, que pode ser aproveitada tanto para simulações quanto para cenários de produção, e, posteriormente, evoluída para suportar operações em tempo real, mediante a adoção de ferramentas específicas adicionais, como Apache NiFi, Apache Flink ou Apache Spark Streaming, que serão apresentadas ao longo do curso. 
+Os fundamentos aqui praticados estão estruturados dentro de uma arquitetura robusta, que pode ser aproveitada tanto para simulações quanto para cenários de produção, e, posteriormente, evoluída para suportar operações em tempo real, mediante a adoção de ferramentas específicas adicionais, como Apache NiFi, Apache Flink ou Apache Spark Streaming. 
