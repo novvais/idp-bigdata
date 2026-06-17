@@ -465,7 +465,7 @@ for message in consumer:
     process_data.delay(message.value)
 ```
 
--->
+
 
 ## 2. Planejamento da Implementação
 
