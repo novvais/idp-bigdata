@@ -16,19 +16,17 @@ Ao longo do curso, exploraremos conceitos, infraestrutura e aplicações de Big 
 | 06 | [Neo4j](./neo4j/)                                                                    | Prática com Banco de Dados de Grafo                              | 08/05/2026 |
 | 07 | [Cassandra](./cassandra/)                                                            | Prática com Banco de Dados Colunar Cassandra                     | 15/05/2026 |
 | 08 | [MinIO](./minio/)                                                                    | Prática com Armazenamento de Objetos                             | 29/05/2025 |
-| 09 | [Spark](./spark/)                                                                    | Framework Spark e Prática com PySpark                            | 05/06/2025 |
-| 10 | [Delta Lake](./delta/)                                                               | Prática com Delta Lake                                           | 05/06/2025 |
+| 09 | [Spark](./spark/)                                                                    | Framework Spark e Prática com PySpark                            | 05/06/2026 |
+| 10 | [Delta Lake](./delta/)                                                               | Prática com Delta Lake                                           | 12/06/2026 |
+| 11 | [Airflow](./airflow/)                                                                | Orquestração de Workflows e Automação de Pipelines               | 19/06/2026 |
+| 12 | [Kafka](./kafka/)                                                                    | Prática com Event Broker Distribuído                             | 24/06/2026 |
+| 13 | [Pipeline](./pipeline/)                                                              | Desenvolvimento de Pipeline de Dados com Múltiplas Ferramentas   | 26/06/2026 |
 
 <!--
-| 09 | [Airflow](./airflow/)                                                                | Orquestração de Workflows e Automação de Pipelines               | 31/10/2025 |
 | 10 | [Redis](./redis/)                                                                    | Prática com Banco de Dados Chave-Valor e Mensageria Leve         | 03/11/2025 |
-| 11 | [Kafka](./kafka/)                                                                    | Prática com Event Broker Distribuído                             | 07/11/2025 |
 | 12 | [RabbitMQ](./rabbitmq/)                                                              | Prática com Broker Pub/Sub                                       | 10/11/2025 |
 | 13 | [Celery](./celery/)                                                                  | Orquestração, workers, filas e serviços de Mensageria            | 13/11/2025 |
-| 14 | [Pipeline](./pipeline/)                                                              | Desenvolvimento de Pipeline com Múltiplas Ferramentas            | 27/11/2025 |
-
 | 15 | [Streamlit](./streamlit/)                                                            | Dashboards Interativos e Visualização de Dados             | 14/05/2025 |
-
 | 17 | [Projeto Final]                                                                      | Projeto Capstone da Disciplina                             | 25/06/2025 |
 -->
 
